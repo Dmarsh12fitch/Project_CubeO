@@ -10,6 +10,7 @@ TagManager:
   - Blue
   - Green
   - Purple
+  - PointPill
   layers:
   - Default
   - TransparentFX

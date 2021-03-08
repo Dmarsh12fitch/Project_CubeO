@@ -10,7 +10,7 @@ public class CubeOController : MonoBehaviour
 
     public float horizontalInput;
     public float verticalInput;
-    private float speed = 7.5f;
+    private float speed = 9;
 
     private Vector3 startCubeOScale;
     private Vector3 smallCubeOScale;
@@ -27,6 +27,9 @@ public class CubeOController : MonoBehaviour
     public MeshRenderer meshRendererCubeO;
     private int previousRandColorIndex = -1;
 
+    private Rigidbody rb;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -41,6 +44,7 @@ public class CubeOController : MonoBehaviour
         currentColorCubeO = meshRendererCubeO.material;
         gameObject.tag = allCubeOColorStrings[0];
 
+        rb = GetComponent<Rigidbody>();
     }
 
     // Update is called once per frame
@@ -76,26 +80,31 @@ public class CubeOController : MonoBehaviour
             transform.localScale = largeCubeOScale;
             transform.localPosition = new Vector3(transform.position.x, 0.5f, transform.position.z);
             cubeOSize++;
-        } else if (cubeOSize == 21)
+        } else if (cubeOSize >= 21)
         {
             cubeOSize = 1;
             levelsComplete++;
-            gameLevel = -1;     //do something to wait a certain amount of time, then go to level2 (ALSO STOP THE SPAWNER BEFORE!)
+            gameLevel = -1;
+            transform.localScale = startCubeOScale;
+            transform.localPosition = new Vector3(0, 0.25f, -4);
+            rb.velocity = new Vector3(0, rb.velocity.y, 0);
+            Debug.Log("                                   LEVEL " + levelsComplete + " COMPLETE!");
         }
         
 
 
         if (gameLevel > 0)
         {
+
             //horizontal movement
             horizontalInput = Input.GetAxis("Horizontal");
-            transform.Translate(Vector3.right * horizontalInput * Time.deltaTime * speed);
             //vertical movement
             verticalInput = Input.GetAxis("Vertical");
-            transform.Translate(Vector3.forward * verticalInput * Time.deltaTime * speed);
+
+            rb.velocity = new Vector3(horizontalInput, rb.velocity.y, verticalInput) * speed;
 
             //game over if out of bounds
-            if (transform.position.y < -0.5 || transform.position.z > 5 || transform.position.z < -5)
+            if (transform.position.y < -0.5 || transform.position.z > 5 || transform.position.z < -5.25f)
             {
                 Debug.Log("GAME OVER GAME OVER GAME OVER");
                 gameLevel = 0;
@@ -107,6 +116,8 @@ public class CubeOController : MonoBehaviour
             if(inBetweenLevelTimeLeft < 0)
             {
                 gameLevel = levelsComplete + 1;
+                inBetweenLevelTimeLeft = 6;
+                Debug.Log("                                   LEVEL " + gameLevel + "!");
             }
         }
 
